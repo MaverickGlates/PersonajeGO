@@ -22,7 +22,6 @@ func (svc *ItemService) Save(data domain.Item) error {
 	return nil
 
 }
-func (svc *ItemService) Getall() []domain.Item {
-	return	svc.Getall()
-
+func (svc *ItemService) Getall() ([]domain.Item, error) {
+	return svc.repository.Getall()
 }

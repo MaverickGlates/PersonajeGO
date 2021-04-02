@@ -38,8 +38,18 @@ func (i *ItemController) itemRequestHandler() {
 				fmt.Fprintf(w, "El dato ha sido guardado exitosamente")
 			case "GET":
 				w.WriteHeader(200)
-			
-				fmt.Fprint(w,i.service.Getall())
+
+				elements, err := i.service.Getall()
+
+				elementAsBytes, _ := json.Marshal(elements)
+
+				if err != nil {
+					w.WriteHeader(500)
+					fmt.Fprintf(w, "Error retrieving data", err)
+					return
+				}
+				w.Header().Add("Content-Type", "application/json")
+				fmt.Fprint(w, string(elementAsBytes))
 			default:
 				w.WriteHeader(405)
 				fmt.Fprintf(w, "405 Method Not Allowed")

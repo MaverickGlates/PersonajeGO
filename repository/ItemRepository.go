@@ -3,6 +3,7 @@ package repository
 import (
 	"aprendiendo/domain"
 	"context"
+	"errors"
 
 	"cloud.google.com/go/firestore"
 )
@@ -19,17 +20,23 @@ func (r *ItemRepository) Save(data domain.Item) (*firestore.DocumentRef, *firest
 	return r.collection.Add(context.Background(), data)
 }
 
-func (r *ItemRepository) Getall() []domain.Item {
+func (r *ItemRepository) Getall() ([]domain.Item, error) {
 
-	items := make([]domain.Item, 1)
-	dociter := r.collection.Documents(context.Background())
-	defer dociter.Stop()
-	for {
-		doc, _ := dociter.Next()
+	documentIterator := r.collection.Documents(context.Background())
+
+	snapshots, err := documentIterator.GetAll()
+
+	if err != nil {
+		return nil, errors.New("Error retrieving documentRefs")
+	}
+
+	var items []domain.Item
+
+	for i := 0; i < len(snapshots); i++ {
 		var item domain.Item
-		doc.DataTo(&item)
+		snapshots[i].DataTo(&item)
 		items = append(items, item)
 	}
 
-	return items
+	return items, nil
 }
